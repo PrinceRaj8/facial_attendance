@@ -1,32 +1,37 @@
 import { useState, useContext } from "react";
-import { loginUser } from "../utils/api";
 import AuthContext from "../context/AuthContext";
+import Cookies from "js-cookie";
+import axios from "axios";
 import { useRouter } from "next/router";
 
-export default function Login() {
-  const [username, setUsername] = useState("");
+const Login = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-      const data = await loginUser(username, password);
-      login(data.access_token);
-      router.push("/dashboard");
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password,
+      });
+      Cookies.set("token", res.data.token, { expires: 7 });
+      setUser(res.data.user);
+      router.push("/dashboard"); // Redirect to dashboard
     } catch (error) {
-      alert("Invalid credentials");
+      console.error("Login failed:", error);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-8 bg-white rounded shadow-md">
-        <h2 className="mb-4 text-2xl font-bold text-center">Login</h2>
-        <input type="text" placeholder="Username" className="mb-2 p-2 border rounded w-full" onChange={(e) => setUsername(e.target.value)} />
-        <input type="password" placeholder="Password" className="mb-4 p-2 border rounded w-full" onChange={(e) => setPassword(e.target.value)} />
-        <button className="w-full bg-blue-500 text-white py-2 rounded" onClick={handleLogin}>Login</button>
-      </div>
-    </div>
+    <form onSubmit={handleLogin}>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <button type="submit">Login</button>
+    </form>
   );
-}
+};
+
+export default Login;
