@@ -6,7 +6,7 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/" }
-  ]
+  "env": {
+    "NEXT_PUBLIC_BACKEND_URL": "https://facial-attendance-1-6zvz.onrender.com"
+  }
 }
