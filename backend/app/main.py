@@ -1,16 +1,17 @@
 from fastapi import FastAPI
-from app.routers import auth, attendance
-from app.database import engine
-from app import models
+from app.database import engine, Base
+from app.routes import auth, users, attendance
 
-models.Base.metadata.create_all(bind=engine)
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="Face Recognition Attendance API")
 
-# Routers
-app.include_router(auth.router)
-app.include_router(attendance.router)
+# Include routers
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(attendance.router, prefix="/attendance", tags=["Attendance"])
 
 @app.get("/")
-def home():
-    return {"message": "Face Recognition Attendance System API is running!"}
+def root():
+    return {"message": "Welcome to Face Recognition Attendance System API"}
